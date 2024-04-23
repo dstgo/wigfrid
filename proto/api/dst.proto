@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package dst;
+
+option go_package = "github.com/dstgo/wigfrid/pb;pb";
+
+message KleiID {
+  string id = 1;
+}

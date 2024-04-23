@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package shard;
+
+option go_package = "github.com/dstgo/wigfrid/pb;pb";
+
+import "result.proto";
+import "daemon.proto";
+
+enum ControlTarget {
+  Master = 0;
+  Cave = 1;
+  Both = 2;
+}
+
+enum ServerState {
+  Running = 0;
+  Starting = 1;
+  Stopping = 2;
+  Stopped = 3;
+}
+
+message ControlRequest {
+  ControlTarget target = 1;
+  daemon.ContainerId instanceId = 2;
+}
+
+message CommandRequest {
+  ControlTarget target = 1;
+  daemon.ContainerId instanceId = 2;
+  string command = 3;
+}
+
+message VersionResp {
+  string version = 1;
+}
+
+message LogsRequest {
+  ControlTarget target = 1;
+  daemon.ContainerId instanceId = 2;
+  int64 lines = 3;
+}
+
+message LogsResponse {
+  string logs = 1;
+}
+
+message StateResp {
+  ServerState state = 1;
+}
+
+service ShardService {
+  rpc Start(ControlRequest) returns(result.Notify);
+  rpc ReStart(ControlRequest) returns(result.Notify);
+  rpc Stop(ControlRequest) returns(result.Notify);
+  rpc State(ControlRequest) returns(StateResp);
+  rpc Logs(LogsRequest) returns(LogsResponse);
+  rpc Execute(CommandRequest) returns(result.Notify);
+
+  rpc Version(daemon.ContainerId) returns(VersionResp);
+  rpc Update(daemon.ContainerId) returns(result.Notify);
+  rpc RollBack(daemon.ContainerId) returns(result.Notify);
+  rpc Reset(daemon.ContainerId) returns(result.Notify);
+  rpc Clear(daemon.ContainerId) returns(result.Notify);
+}

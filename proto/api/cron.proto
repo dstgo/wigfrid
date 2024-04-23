@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package cron;
+
+option go_package = "github.com/dstgo/wigfrid/pb;pb";
+
+import "result.proto";
+import "daemon.proto";
+
+enum JobType {
+  Boot = 0;
+  Stop = 1;
+  Update = 2;
+  Reboot = 3;
+  Backup = 4;
+}
+
+message JobInfo {
+  daemon.ContainerId instance = 1;
+  int64 jobId = 2;
+  string name = 3;
+  int64 last = 4;
+  int64 next = 5;
+  JobType jobType = 6;
+}
+
+message JobList {
+  repeated JobInfo list = 1;
+}
+
+message CreateJobReq {
+  string name = 1;
+  string cronExpr = 2;
+  JobType jobType = 3;
+}
+
+service CronJobService {
+  rpc Create(CreateJobReq) returns(result.Notify);
+  rpc Delete(CreateJobReq) returns(result.Notify);
+  rpc List(CreateJobReq) returns(JobList);
+}

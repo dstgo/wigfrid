@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package archive;
+
+import "result.proto";
+import "daemon.proto";
+
+option go_package = "github.com/dstgo/wigfrid/pb;pb";
+
+// dst archive basic info
+message ArchiveInfo {
+  // archive name
+  string name = 1;
+  // how many days has been elapsed
+  int64  days = 2;
+  // archive season: spring, summer, autumn, winter
+  string season = 3;
+  // day or night
+  string phase = 4;
+  int64 elapse = 5;
+  // size in bytes of the archive
+  int64 size = 6;
+  // how many mods has loaded
+  int64 mods = 7;
+}
+
+message BackUpInfo {
+  string name = 1;
+  int64 mTime = 2;
+  int64 size = 3;
+}
+
+message BackupFile{
+  // file name
+  string name = 1;
+  // file content in bytes
+  bytes content = 2;
+}
+
+message BackUpList {
+  repeated BackUpInfo list = 1;
+}
+
+message BackupOpt {
+  daemon.ContainerId id = 1;
+  string backupName = 2;
+}
+
+service ArchiveService {
+
+  rpc Info(daemon.ContainerId) returns(ArchiveInfo);
+
+  rpc ListBackups(daemon.ContainerId) returns(BackUpList);
+
+  rpc CreateBackup(BackupOpt) returns(result.Notify);
+
+  rpc DeleteBackUp(BackupOpt) returns(result.Notify);
+
+  rpc RestoreBackUp(BackupOpt) returns(result.Notify);
+
+  rpc UploadBackup(BackupFile) returns(result.Notify);
+
+  rpc DownloadBackup(BackupOpt) returns(BackupFile);
+}

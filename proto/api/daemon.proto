@@ -1,0 +1,175 @@
+syntax = "proto3";
+
+package daemon;
+
+option go_package = "github.com/dstgo/wigfrid/pb;pb";
+
+import "google/protobuf/empty.proto";
+import "result.proto";
+
+service DaemonService {
+  rpc HostInfo(google.protobuf.Empty) returns(SystemInfo);
+  rpc HealthCheck(google.protobuf.Empty) returns(HealthInfo);
+}
+
+service ImageService {
+  rpc List(ListImagesReq) returns(ListImageResult);
+  rpc Remove(ImageId) returns(result.Notify);
+}
+
+service ContainerService {
+  rpc List(ListContainerReq) returns(ListContainerResp);
+  rpc Create(CreateContainerReq) returns(CreateContainerResp);
+  rpc UpdateQuota(Resource) returns(result.Notify);
+  rpc Log(LogContainerReq) returns(ContainerLog);
+  rpc Stats(ContainerId) returns(HealthInfo);
+  rpc Start(ContainerId) returns(result.Notify);
+  rpc Stop(ContainerId) returns(result.Notify);
+  rpc Restart(ContainerId) returns(result.Notify);
+  rpc Delete(ContainerId) returns(result.Notify);
+  rpc ForceDelete(ContainerId) returns(result.Notify);
+}
+
+message ContainerId {
+  string id = 1;
+}
+
+message CpuHealth {
+  int64 count = 1;
+  double usage = 2;
+}
+
+message MemoryHealth {
+  int64 total = 1;
+  int64 used = 2;
+  int64 free = 3;
+  double usage = 4;
+}
+
+message HealthInfo {
+  CpuHealth cpu = 1;
+  MemoryHealth mem = 2;
+}
+
+message Resource {
+  int64 cpu = 1;
+  int64 memory = 2;
+  int64 disk = 3;
+}
+
+message SystemInfo {
+  string os = 1;
+  string osVersion = 2;
+  string arch = 3;
+  string goVersion = 4;
+  string buildVersion = 5;
+  DockerInfo docker = 6;
+  Resource resource = 7;
+  string cpuModel = 8;
+}
+
+message DockerInfo {
+  int64 containers = 1;
+  int64 running = 2;
+  int64 pause = 3;
+  int64 stopped = 4;
+  int64 images = 5;
+  string driver = 6;
+  string version = 7;
+  string kernelVersion = 8;
+}
+
+message ImageId {
+  string id = 1;
+}
+
+
+message ListImagesReq {
+  string search = 1;
+  int64  page = 2;
+  int64 size = 3;
+}
+
+message ImageInfo {
+  string id = 1;
+  string parentId = 2;
+  map<string, string> labels = 3;
+  int64 size = 4;
+  int64 containers = 5;
+  int64 createdAt = 6;
+}
+
+message ListImageResult {
+  int64 total = 1;
+  repeated ImageInfo images = 2;
+}
+
+
+message PortBind {
+  string protocol = 1;
+  int64 host = 2;
+  int64 bind = 3;
+  // if auto is true, host will be same as bind
+  bool auto = 4;
+}
+
+message Volume {
+  string vType = 1;
+  string host = 2;
+  string bind = 3;
+}
+
+message CreateContainerReq {
+  string name = 1;
+  string image = 2;
+  string userId = 3;
+  Resource resource = 4;
+  repeated PortBind ports = 5;
+  repeated Volume volumes = 6;
+}
+
+message CreateContainerResp {
+  int64 createdAt = 1;
+  string containerId = 2;
+}
+
+enum ContainerState {
+  running = 0;
+  starting = 1;
+  stopping = 2;
+  stopped = 3;
+}
+
+message ContainerInfo {
+  string id = 1;
+  ContainerState state = 2;
+  string name = 3;
+  string userId = 4;
+  Resource resource = 5;
+  int64 createdAt = 6;
+  int64 expiredAt = 7;
+}
+
+message ListContainerReq {
+  string search = 1;
+  int64  page = 2;
+  int64 size = 3;
+}
+
+message LogContainerReq {
+  daemon.ContainerId instanceId = 1;
+  int64 since = 2;
+  int64 until = 3;
+  bool timestamp = 4;
+  int64 tail = 5;
+}
+
+message ListContainerResp {
+  repeated ContainerInfo list = 1;
+  int64 total = 2;
+}
+
+message ContainerLog {
+  string logContent = 1;
+  int64 lines = 2;
+}
