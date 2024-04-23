@@ -1,31 +1,59 @@
-.PHONY: all
-
-# if you build this project in windows, use make tool in git bash.
-app_name := wig
-app_pkg := github.com/dstgo/wigfrid/cmd/daemon
-user := $(shell git config user.name)
+# basic info
+app := wigfrid
+module := github.com/dstgo/wigfrid/cmd/$(app)
+output := $(shell pwd)/bin
+# meta info
+build_time := $(shell date +"%Y/%m/%dT%H:%M:%SZ%z")
 git_version := $(shell git describe --tags --always)
-build_time := $(shell date +"%Y%m%d%H%M%S")
+# build info
 host_os := $(shell go env GOHOSTOS)
 host_arch := $(shell go env GOHOSTARCH)
+os := $(host_os)
+arch := $(host_arch)
 
-resume:
+ifeq ($(os), windows)
+	exe := .exe
+endif
+
+
+.PHONY: build
+build:
+	# go lint
+	go vet ./...
+
+	# prepare target environment $(os)/$(arch)
+	go env -w GOOS=$(os)
+	go env -w GOARCH=$(arch)
+
+	# build go module
+	go build -trimpath \
+		-ldflags="-X main.AppName=$(app) -X main.Version=$(git_version) -X main.BuildTime=$(build_time)" \
+		-o $(output)/$(app)$(exe) \
+		$(module)
+
+	# resume host environment $(host_os)/$(host_arch)
 	go env -w GOOS=$(host_os)
 	go env -w GOARCH=$(host_arch)
 
-build:
-	go env -w GOOS="linux"
-	go env -w GOARCH="amd64"
-	go build -trimpath \
-    			-ldflags="-X main.Author=$(user) -X main.BuildTime=$(build_time)  -X main.Version=$(git_version)" \
-    			-o ./bin/$(app_name).exe $(app_pkg)
-	make resume
+# target protobuf files will be generated at api directory
+target_proto_files := $(shell find ./proto/api/ -name *.proto)
 
-# only for test, wigfird only run for the linux platform.
-build_win:
-	go env -w GOOS="windows"
-	go env -w GOARCH="amd64"
-	go build -trimpath \
-			-ldflags="-X main.Author=$(user) -X main.BuildTime=$(build_time)  -X main.Version=$(git_version)" \
-			-o ./bin/$(app_name).exe $(app_pkg)
-	make resume
+.PHONY: pb_gen
+pb_gen:
+ifeq ($(wildcard pb), )
+	@mkdir pb
+endif
+
+	@protoc --proto_path=./proto/api/ \
+		   --proto_path=./proto/third_party/ \
+		   --go_out=paths=source_relative:./pb \
+		   --go-grpc_out=paths=source_relative:./pb \
+		   --validate_out=paths=source_relative,lang=go:./pb \
+		   $(target_proto_files)
+
+wire_out := ./server/
+
+.PHONY: wire
+wire:
+	# generate app dependencies injection file
+	wire gen $(wire_out)
