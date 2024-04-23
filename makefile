@@ -38,8 +38,8 @@ build:
 # target protobuf files will be generated at api directory
 target_proto_files := $(shell find ./proto/api/ -name *.proto)
 
-.PHONY: pb_gen
-pb_gen:
+.PHONY: proto
+proto:
 ifeq ($(wildcard pb), )
 	@mkdir pb
 endif
