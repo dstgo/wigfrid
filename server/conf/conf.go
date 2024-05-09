@@ -7,6 +7,7 @@ import (
 )
 
 type App struct {
+	GRPC  GRPC        `mapstructure:"grpc"`
 	Log   Log         `mapstructure:"log"`
 	Redis Redis       `mapstructure:"redis"`
 	DB    dbx.Options `mapstructure:"db"`
@@ -29,4 +30,17 @@ type Redis struct {
 	Password     string        `mapstructure:"password"`
 	WriteTimeout time.Duration `mapstructure:"writeTimeout"`
 	ReadTimeout  time.Duration `mapstructure:"readTimeout"`
+}
+
+type GRPC struct {
+	Address       string `mapstructure:"address"`
+	MaxRecv       int    `mapstructure:"maxRecv"`
+	MaxSend       int    `mapstructure:"maxSend"`
+	ReadBuffer    int    `mapstructure:"readBuffer"`
+	WriteBuffer   int    `mapstructure:"writeBuffer"`
+	MaxHeaderSize uint32 `mapstructure:"maxHeaderSize"`
+	TLS           struct {
+		Cert string `mapstructure:"cert"`
+		Key  string `mapstructure:"key"`
+	} `mapstructure:"tls"`
 }

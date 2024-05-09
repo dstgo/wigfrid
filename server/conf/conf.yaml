@@ -1,0 +1,37 @@
+# grpc configuration
+grpc:
+  # grpc address
+  address: 127.0.0.1:9090
+  # set the max message size in bytes the server can receive
+  maxRecv: 32768
+  # set the max message size in bytes the server can send.
+  maxSend: 2147483647
+  # determines how much data can be read at most for one read syscall
+  readBuffer: 32768
+  # determines how much data can be batched before doing a writing on the wire
+  writeBuffer: 32768
+  # max header list size
+  maxHeaderSize: 10240
+  # tls certificate
+  tls:
+    # certificate file
+    cert: /etc/maxwell/example.com.cert
+    # key file
+    key: /etc/maxwell/example.com.key
+
+# logger configuration
+log:
+  # log output file
+  filename: /etc/maxwell/access.log
+  # log level
+  # LevelDebug Level = -4
+  # LevelInfo  Level = 0
+  # LevelWarn  Level = 4
+  # LevelError Level = 8
+  level: 0
+  # log format, TEXT, JSON is available
+  format: TEXT
+  # log record with source file info
+  source: false
+  # show color in console output
+  color: false
