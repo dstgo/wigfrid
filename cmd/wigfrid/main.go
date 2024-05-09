@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	internal "github.com/dstgo/wigfrid/server"
 	"github.com/dstgo/wigfrid/server/conf"
 	"github.com/spf13/cobra"
@@ -70,7 +69,5 @@ func init() {
 }
 
 func main() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-	}
+	rootCmd.Execute()
 }

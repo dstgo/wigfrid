@@ -1,6 +1,8 @@
 package server
 
 import (
+	"context"
+	"github.com/docker/docker/client"
 	"github.com/dstgo/wigfrid/assets"
 	"github.com/dstgo/wigfrid/pb"
 	"github.com/dstgo/wigfrid/server/conf"
@@ -14,6 +16,7 @@ import (
 
 var EnvProvider = wire.NewSet(
 	wire.FieldsOf(new(*types.Env), "Docker"),
+	wire.FieldsOf(new(*types.Env), "AppConf"),
 )
 
 // PrintBanner writes the banner into given writer
@@ -69,4 +72,17 @@ func registerService(server *grpc.Server, service service.Service) {
 	pb.RegisterPlayerServiceServer(server, service.Player)
 	pb.RegisterShardServiceServer(server, service.Shard)
 	pb.RegisterSettingServiceServer(server, service.Setting)
+}
+
+// initialize docker client from local
+func loadDockerFromLocal(ctx context.Context) (*client.Client, error) {
+	dockerClient, err := client.NewClientWithOpts(client.WithAPIVersionNegotiation(), client.FromEnv)
+	if err != nil {
+		return nil, err
+	}
+	// test if docker is available
+	if _, err := dockerClient.Ping(ctx); err != nil {
+		return nil, err
+	}
+	return dockerClient, nil
 }

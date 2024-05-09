@@ -19,11 +19,12 @@ import (
 
 // Injectors from wire.go:
 
-func Setup(env *types.Env) service.Service {
+func setup(env *types.Env) service.Service {
 	cronJobHandler := cronjob.NewCronJobHandler()
 	cronJobService := cronjob2.NewCronJobService(cronJobHandler)
 	client := env.Docker
-	daemonHandler := daemon.NewDaemonHandler(client)
+	app := env.AppConf
+	daemonHandler := daemon.NewDaemonHandler(client, app)
 	daemonService := daemon2.NewDaemonService(daemonHandler)
 	containerHandler := daemon.NewContainerHandler(client)
 	containerService := daemon2.NewContainerService(containerHandler)

@@ -10,7 +10,7 @@ import (
 	"github.com/google/wire"
 )
 
-func Setup(env *types.Env) service.Service {
+func setup(env *types.Env) service.Service {
 	panic(wire.Build(
 		EnvProvider,
 		handler.Provider,
