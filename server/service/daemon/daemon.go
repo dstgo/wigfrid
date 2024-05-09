@@ -16,12 +16,11 @@ type DaemonService struct {
 	Daemon *daemon.DaemonHandler
 }
 
+// HostInfo returns basic information about local machine
 func (d DaemonService) HostInfo(ctx context.Context, empty *emptypb.Empty) (*pb.SystemInfo, error) {
-	//TODO implement me
-	panic("implement me")
+	return d.Daemon.HostInfo(ctx)
 }
 
 func (d DaemonService) HealthCheck(ctx context.Context, empty *emptypb.Empty) (*pb.HealthInfo, error) {
-	//TODO implement me
-	panic("implement me")
+	return d.Daemon.HealthCheck(ctx)
 }
