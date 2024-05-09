@@ -18,8 +18,9 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "wigfrid [command] [-flags]",
-	Short: "wigfrid is the gRPC daemon of wendy panel, responsible for managing local docker containers.",
+	Use:          "wigfrid [command] [-flags]",
+	Short:        "wigfrid is the gRPC daemon of wendy panel, responsible for managing local docker containers.",
+	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()
 
